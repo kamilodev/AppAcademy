@@ -1,11 +1,12 @@
-#!/usr/bin/env python
 from fastapi import FastAPI, Response, status
 from routers.students import router as students
+from routers.professors import router as professors
 from connection import database as database
 
 
 app = FastAPI()
 app.include_router(students)
+app.include_router(professors)
 
 
 @app.on_event("startup")
@@ -58,7 +59,7 @@ async def get_student(id_students: int, response: Response):
 @app.delete(
     "/students/{id_students}",
     status_code=status.HTTP_200_OK,
-    tags=["Delete", "Students"],
+    tags=["Students"],
     summary="Delete a student by id",
 )
 async def delete_student(id_students: int, response: Response):
