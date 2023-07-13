@@ -10,6 +10,7 @@ databases = "*"
 python-dotenv = "*"
 aiomysql = "*"
 pydantic = "*"
+router = "*"
 
 [dev-packages]
 
