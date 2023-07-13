@@ -9,3 +9,12 @@ class Student(BaseModel):
     email: str
     age: int
     id_familiar: int
+
+
+class Professor(BaseModel):
+    id_professors: int
+    first_name: str
+    last_name: str
+    phone: str
+    email: str
+    address: str

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Response, status
 from Models import Student
-import databases
+from connection import database as database
 
 router = APIRouter(prefix="/students", tags=["Students"])
 
@@ -28,6 +28,6 @@ async def create_student(student: Student):
         "age": student.age,
         "id_familiar": student.id_familiar,
     }
-    await databases.Database.execute(query=query, values=values)
+    await database.execute(query=query, values=values)
 
     return {"message": "Student created successfully"}
