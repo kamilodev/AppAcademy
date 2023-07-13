@@ -1,17 +1,11 @@
 #!/usr/bin/env python
 from fastapi import FastAPI, Response, status
-from dotenv import load_dotenv
-from Models import Student
-from routers.post_students import router as post_students
-import databases
-import os
+from routers.students import router as students
+from connection import database as database
 
-load_dotenv(override=True)
 
 app = FastAPI()
-app.include_router(post_students)
-database = databases.Database(os.environ["MYSQL_ADDON_URI"])
-print(os.environ["MYSQL_ADDON_URI"])
+app.include_router(students)
 
 
 @app.on_event("startup")
