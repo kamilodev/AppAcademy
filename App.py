@@ -1,17 +1,12 @@
-#!/usr/bin/env python
 from fastapi import FastAPI, Response, status
-from dotenv import load_dotenv
-from Models import Student
 from routers.post_students import router as post_students
-import databases
-import os
+from routers.professors import router as professors
+from connection import database as database
 
-load_dotenv(override=True)
 
 app = FastAPI()
 app.include_router(post_students)
-database = databases.Database(os.environ["MYSQL_ADDON_URI"])
-print(os.environ["MYSQL_ADDON_URI"])
+app.include_router(professors)
 
 
 @app.on_event("startup")
@@ -64,7 +59,7 @@ async def get_student(id_students: int, response: Response):
 @app.delete(
     "/students/{id_students}",
     status_code=status.HTTP_200_OK,
-    tags=["Delete", "Students"],
+    tags=["Students"],
     summary="Delete a student by id",
 )
 async def delete_student(id_students: int, response: Response):
