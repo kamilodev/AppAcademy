@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Response, status
-from Models import Professor
-from connection import database as database
+from data.Models import Professor
+from data.connection import database as database
 
 router = APIRouter(prefix="/professors", tags=["Professors"])
 

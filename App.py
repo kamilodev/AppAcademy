@@ -1,7 +1,7 @@
-from fastapi import FastAPI, Response, status
+from fastapi import FastAPI
 from routers.students import router as students
 from routers.professors import router as professors
-from connection import database as database
+from data.connection import database as database
 
 
 app = FastAPI()
