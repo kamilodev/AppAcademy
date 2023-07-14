@@ -49,7 +49,7 @@ async def create_professors(professor: Professor):
 
 
 @router.get(
-    "/professors/{id_professors}",
+    "/{id_professors}",
     status_code=status.HTTP_200_OK,
     tags=["Professors"],
     summary="Get a prof by id",
