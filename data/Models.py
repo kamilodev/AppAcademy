@@ -18,3 +18,8 @@ class Professor(BaseModel):
     phone: str
     email: str
     address: str
+
+class Level(BaseModel):
+    id_levels: int
+    name: str
+    
