@@ -1,15 +1,16 @@
 from data.connection import database as database
 from fastapi import status, Response
-from data.Models import Student
+from data.Models import DeleteStudent, Student
 
 
-async def get_student_by_id(id_students: int):
-    query = f"SELECT * FROM students WHERE id_students = {id_students}"
-    results = await database.fetch_all(query)
+async def get_student_by_id(id_students: str):
+    query = f"SELECT * FROM students WHERE id_students = :id_students"
+    values = {"id_students": id_students}
+    results = await database.fetch_all(query, values)
     return results
 
 
-async def get_student(id_students: int, response: Response):
+async def get_student(id_students: str, response: Response):
     """
     This endpoint allows you to get a student by id.
 
@@ -29,12 +30,12 @@ async def get_all_students():
     """
     This endpoint allows you to get all students in the database.
     """
-    query = "SELECT * FROM students"
+    query = "SELECT * FROM students ORDER BY id_students ASC"
     results = await database.fetch_all(query)
     return {"message": "All students", "data": results}
 
 
-async def create_student(student: Student):
+async def create_student(student: Student, response: Response):
     """
     This endpoint allows you to create a new student in the database.
 
@@ -45,8 +46,9 @@ async def create_student(student: Student):
     - **email**: Email of the student (mandatory)
     - **age**: Age of the student (mandatory)
     - **id_familiar**: DNI of the familiar (optional)
+    - **status**: Status of the student
     """
-    query = f"INSERT INTO students (id_students, first_name, last_name, phone, email, age, id_familiar) VALUES (:id_students, :first_name, :last_name, :phone, :email, :age, :id_familiar)"
+    query = f"INSERT INTO students (id_students, first_name, last_name, phone, email, age, id_familiar, status) VALUES (:id_students, :first_name, :last_name, :phone, :email, :age, :id_familiar, :status)"
     values = {
         "id_students": student.id_students,
         "first_name": student.first_name,
@@ -55,7 +57,14 @@ async def create_student(student: Student):
         "email": student.email,
         "age": student.age,
         "id_familiar": student.id_familiar,
+        "status": student.status,
     }
+
+    duplicate_student = await get_student_by_id(student.id_students)
+    if len(duplicate_student) > 0:
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        return f"Student with id: {student.id_students} already exists"
+
     await database.execute(query=query, values=values)
 
     return {"message": "Student created successfully"}
@@ -73,6 +82,7 @@ async def update_student(student: Student, response: Response):
     - **email**: Email of the student (optional)
     - **age**: Age of the student (optional)
     - **id_familiar**: DNI of the familiar (optional)
+    - **status**: Status of the student
     """
     results = await get_student_by_id(student.id_students)
 
@@ -81,21 +91,18 @@ async def update_student(student: Student, response: Response):
         return f"Student with id: {student.id_students} not found"
 
     update_fields = {}
+    default_values = ["string", 0]
 
-    if student.first_name != "string":
-        update_fields["first_name"] = student.first_name
-    if student.last_name != "string":
-        update_fields["last_name"] = student.last_name
-    if student.phone != "string":
-        update_fields["phone"] = student.phone
-    if student.email != "string":
-        update_fields["email"] = student.email
-    if student.age != 0:
-        update_fields["age"] = student.age
-    if student.id_familiar != 0:
-        update_fields["id_familiar"] = student.id_familiar
+    for field in student.__fields__:
+        if field == "id_students":
+            continue
+        if student.__getattribute__(field) in default_values:
+            continue
+
+        update_fields[field] = student.__getattribute__(field)
 
     if len(update_fields) == 0:
+        response.status_code = status.HTTP_400_BAD_REQUEST
         return f"No fields to update for student with id: {student.id_students}"
 
     set_query = ", ".join(f"{field} = :{field}" for field in update_fields)
@@ -107,20 +114,21 @@ async def update_student(student: Student, response: Response):
     return f"Student with id {student.id_students} updated successfully"
 
 
-async def delete_student(id_students: int, response: Response):
+async def delete_student(student: DeleteStudent, response: Response):
     """
     This endpoint allows you to delete a student by id.
 
     - **id**: DNI of the student (mandatory)
     """
-    results = await get_student_by_id(id_students)
+    results = await get_student_by_id(student.id_students)
 
     if len(results) == 0:
         response.status_code = status.HTTP_404_NOT_FOUND
-        return f"Student with id: {id_students} not found"
+        return f"Student with id: {student.id_students} not found"
 
-    delete_query = f"DELETE FROM students WHERE id_students = {id_students}"
-    await database.execute(delete_query)
+    delete_query = f"DELETE FROM students WHERE id_students = :id_students"
+    values = {"id_students": student.id_students}
 
+    await database.execute(delete_query, values)
     response.status_code = status.HTTP_200_OK
-    return f"Student with id {id_students} deleted"
+    return f"Student with id {student.id_students} deleted"
