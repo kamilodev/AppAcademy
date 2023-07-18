@@ -17,13 +17,11 @@ class DeleteStudent(BaseModel):
 
 
 class Professor(BaseModel):
-    id_professors: int
+    id_professors: str
     first_name: str
     last_name: str
     phone: str
     email: str
-    address: str
-
 
 class Courses(BaseModel):
     id_courses: int
@@ -41,3 +39,11 @@ class NewCourses(BaseModel):
     name_professor: str
     max_students: int
     prices: int
+
+class CreateLevel(BaseModel):
+    name: str
+
+
+class Level(BaseModel):
+    id_levels: int
+    name: str
