@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from routers.students import router as students
 from routers.professors import router as professors
+from routers.courses import router as courses
 from routers.levels import router as levels
 from data.connection import database as database
 
@@ -8,6 +9,7 @@ from data.connection import database as database
 app = FastAPI()
 app.include_router(students)
 app.include_router(professors)
+app.include_router(courses)
 app.include_router(levels)
 
 
