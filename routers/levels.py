@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Response, status
-from data.Models import Level
+from data.Models import CreateLevel, Level
 from controllers import levels
 
 router = APIRouter(prefix="/levels", tags=["Levels"])
@@ -31,7 +31,7 @@ async def get_level(id_levels: int, response: Response):
     response_description="A new level will be created in database",
     status_code=status.HTTP_201_CREATED,
 )
-async def create_level(level: Level):
+async def create_level(level: CreateLevel):
     return await levels.create_level(level)
 
 

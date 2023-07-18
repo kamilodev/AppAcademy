@@ -1,6 +1,6 @@
 from data.connection import database as database
 from fastapi import status, Response
-from data.Models import Level
+from data.Models import CreateLevel, Level
 
 
 async def get_level_by_id(id_levels: int):
@@ -34,16 +34,14 @@ async def get_all_levels():
     return {"message": "All levels", "data": results}
 
 
-async def create_level(level: Level):
+async def create_level(level: CreateLevel):
     """
     This endpoint allows you to create a new level in the database.
 
-    - **id**: id of the level (mandatory)
     - **name**: name of new the level 
     """
-    query = f"INSERT INTO levels (id_levels, name) VALUES (:id_levels, :name)"
+    query = f"INSERT INTO levels (name) VALUES (:name)"
     values = {
-        "id_levels": level.id_levels,
         "name": level.name,
     }
     await database.execute(query=query, values=values)
