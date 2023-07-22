@@ -8,7 +8,7 @@ class Student(BaseModel):
     phone: str
     email: str
     age: int
-    id_familiar: int
+    id_familiar: str
     status: bool
 
 
@@ -22,6 +22,7 @@ class Professor(BaseModel):
     last_name: str
     phone: str
     email: str
+
 
 class Courses(BaseModel):
     id_courses: int
@@ -40,6 +41,7 @@ class NewCourses(BaseModel):
     max_students: int
     prices: int
 
+
 class CreateLevel(BaseModel):
     name: str
 
@@ -47,3 +49,13 @@ class CreateLevel(BaseModel):
 class Level(BaseModel):
     id_levels: int
     name: str
+
+
+class Inscription(BaseModel):
+    id_students: str
+    observation: str
+
+
+class InscriptionDetail(BaseModel):
+    id_courses: int
+    unit_price: float

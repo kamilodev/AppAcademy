@@ -1,6 +1,6 @@
 from data.connection import database as database
 from fastapi import status, Response
-from data.Models import Courses, NewCourses
+from data.Models import NewCourses
 
 
 master_query = "SELECT c.id_courses,cl.name AS classes_name,l.name AS levels_name,p.first_name AS professor_name,p.last_name AS professor_surname,c.max_students,c.prices FROM courses c JOIN classes cl ON c.id_classes=cl.id_classes JOIN levels l ON c.id_levels=l.id_levels JOIN professors p ON c.id_professors=p.id_professors"
