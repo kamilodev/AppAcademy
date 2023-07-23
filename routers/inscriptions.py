@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Response, status
 from controllers import inscriptions
-from data.Models import Inscription
+from data.Models import Inscription, UpdateInscription
 from data.Models import InscriptionDetail
 from typing import List
 
@@ -51,3 +51,23 @@ async def create_inscription(
     return await inscriptions.create_inscription(
         inscription, inscriptions_detail, response
     )
+
+
+@router.put(
+    "/update/",
+    summary="Update a inscription",
+    response_description="A inscription will be updated in database",
+    status_code=status.HTTP_200_OK,
+)
+async def update_inscription(update: UpdateInscription, response: Response):
+    return await inscriptions.update_inscription(update, response)
+
+
+@router.delete(
+    "/delete/{id_inscriptions}",
+    summary="Delete a inscription by id",
+    response_description="A inscription will be deleted in database",
+    status_code=status.HTTP_200_OK,
+)
+async def delete_inscription(id_inscriptions: int, response: Response):
+    return await inscriptions.delete_inscription(id_inscriptions, response)

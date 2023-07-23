@@ -30,12 +30,16 @@ async def get_courses(id_courses: int, response: Response):
         return {"message": "Course found", "data": results[0]}
 
 
-async def get_all_courses():
+async def get_all_courses(response: Response):
     """
     This endpoint allows you to get all courses in the database.
     """
     query = f"{master_query} ORDER BY c.id_courses;"
     results = await database.fetch_all(query)
+
+    if len(results) == 0:
+        response.status_code = status.HTTP_404_NOT_FOUND
+        return f"No courses found"
     return {"message": "All courses", "data": results}
 
 

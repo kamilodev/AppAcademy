@@ -117,6 +117,8 @@ async def update_student(student: Student, response: Response):
     - **id_familiar**: DNI of the familiar (optional)
     - **status**: Status of the student
     """
+    from controllers import inscriptions
+
     results = await get_student_by_id(student.id_students)
 
     if student.id_students == "" or student.id_students == "string":
@@ -128,6 +130,15 @@ async def update_student(student: Student, response: Response):
         return f"Student with id: {student.id_students} not found"
 
     existing_student = results[0]
+
+    if existing_student["status"] == 1 and student.status == 0:
+        active_inscriptions = await inscriptions.get_inscription_by_student(
+            student.id_students
+        )
+
+        if len(active_inscriptions) > 0:
+            response.status_code = status.HTTP_400_BAD_REQUEST
+            return f"Student with id: {student.id_students} has active inscriptions and cannot be deactivated"
 
     update_fields = {}
     default_values = {
@@ -184,7 +195,7 @@ async def delete_student(student: DeleteStudent, response: Response):
         response.status_code = status.HTTP_404_NOT_FOUND
         return f"Student with id: {student.id_students} not found"
 
-    result = await inscriptions.get_inscription_by_student(student.id_students)
+    result = await inscriptions.get_active_inscriptions_by_student(student.id_students)
     if len(result) > 0:
         response.status_code = status.HTTP_400_BAD_REQUEST
         return f"Student with id: {student.id_students} has active inscriptions"

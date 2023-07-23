@@ -59,3 +59,9 @@ class Inscription(BaseModel):
 class InscriptionDetail(BaseModel):
     id_courses: int
     unit_price: float
+
+
+class UpdateInscription(BaseModel):
+    id_inscriptions: int
+    id_courses: int
+    status: bool
