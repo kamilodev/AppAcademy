@@ -23,14 +23,18 @@ async def get_level(id_levels: int, response: Response):
     else:
         response.status_code = status.HTTP_200_OK
         return {"message": "Level found", "data": results[0]}
-    
 
-async def get_all_levels():
+
+async def get_all_levels(response: Response):
     """
     This endpoint allows you to get all levels in the database.
     """
     query = "SELECT * FROM levels"
     results = await database.fetch_all(query)
+
+    if len(results) == 0:
+        response.status_code = status.HTTP_404_NOT_FOUND
+        return f"No levels found"
     return {"message": "All levels", "data": results}
 
 
@@ -38,7 +42,7 @@ async def create_level(level: CreateLevel):
     """
     This endpoint allows you to create a new level in the database.
 
-    - **name**: name of new the level 
+    - **name**: name of new the level
     """
     query = f"INSERT INTO levels (name) VALUES (:name)"
     values = {
@@ -55,7 +59,7 @@ async def update_level(level: Level, response: Response):
     This endpoint allows you to update the information of a level in the database.
 
     - **id**: id of the level (mandatory)
-    - **name**: name of the level 
+    - **name**: name of the level
 
     """
     results = await get_level_by_id(level.id_levels)
@@ -68,7 +72,6 @@ async def update_level(level: Level, response: Response):
 
     if level.name != "string":
         update_fields["name"] = level.name
-
 
     if len(update_fields) == 0:
         return f"No fields to update for level with id: {level.id_levels}"
@@ -99,4 +102,3 @@ async def delete_level(id_levels: int, response: Response):
 
     response.status_code = status.HTTP_200_OK
     return f"Level with id {id_levels} deleted"
-
