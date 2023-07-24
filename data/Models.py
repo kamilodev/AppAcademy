@@ -24,6 +24,16 @@ class Professor(BaseModel):
     email: str
 
 
+class Classes(BaseModel):
+    id_classes: int
+    name: str
+    id_packs: int
+    
+class CreateClasses(BaseModel):
+    name: str
+    id_packs: int
+
+
 
 class DeleteProfessor(BaseModel):
     id_professors: str
@@ -79,3 +89,4 @@ class UpdateInscription(BaseModel):
     id_inscriptions: int
     id_courses: int
     status: bool
+
