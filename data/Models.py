@@ -24,6 +24,11 @@ class Professor(BaseModel):
     email: str
 
 
+
+class DeleteProfessor(BaseModel):
+    id_professors: str
+
+
 class Courses(BaseModel):
     id_courses: int
     id_classes: int
@@ -51,6 +56,15 @@ class Level(BaseModel):
     name: str
 
 
+class User(BaseModel):
+    id_users: str
+    nombre: str
+    password: str
+
+
+class DeleteUser(BaseModel):
+    id_users: str
+      
 class Inscription(BaseModel):
     id_students: str
     observation: str

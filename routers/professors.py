@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Response, status
-from data.Models import Professor
+from data.Models import DeleteProfessor, Professor
 from controllers import professors
 
 router = APIRouter(prefix="/professors", tags=["Professors"])
@@ -31,8 +31,8 @@ async def get_professor(id_professors: int, response: Response):
     response_description="A new professor will be created in database",
     status_code=status.HTTP_201_CREATED,
 )
-async def create_professor(professor: Professor):
-    return await professors.create_professor(professor)
+async def create_professor(professor: Professor, response: Response):
+    return await professors.create_professor(professor, response)
 
 
 @router.put(
@@ -51,5 +51,5 @@ async def update_professor(professor: Professor, response: Response):
     response_description="A professor will be deleted in database",
     status_code=status.HTTP_200_OK,
 )
-async def delete_professor(id_professors: int, response: Response):
-    return await professors.delete_professor(id_professors, response)
+async def delete_professor(professor: DeleteProfessor, response: Response):
+    return await professors.delete_professor(professor, response)
