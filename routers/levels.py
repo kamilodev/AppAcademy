@@ -11,8 +11,8 @@ router = APIRouter(prefix="/levels", tags=["Levels"])
     response_description="All levels in database shown",
     status_code=status.HTTP_200_OK,
 )
-async def get_all_levels():
-    return await levels.get_all_levels()
+async def get_all_levels(response: Response):
+    return await levels.get_all_levels(response)
 
 
 @router.get(
@@ -53,5 +53,3 @@ async def update_level(level: Level, response: Response):
 )
 async def delete_level(id_levels: int, response: Response):
     return await levels.delete_level(id_levels, response)
-
-

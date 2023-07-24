@@ -12,8 +12,8 @@ router = APIRouter(prefix="/courses", tags=["Courses"])
     response_description="All courses in database shown",
     status_code=status.HTTP_200_OK,
 )
-async def get_all_courses():
-    return await courses.get_all_courses()
+async def get_all_courses(response: Response):
+    return await courses.get_all_courses(response)
 
 
 @router.get(
