@@ -23,6 +23,11 @@ class Professor(BaseModel):
     phone: str
     email: str
 
+
+class DeleteProfessor(BaseModel):
+    id_professors: str
+
+
 class Courses(BaseModel):
     id_courses: int
     id_classes: int
@@ -47,3 +52,13 @@ class CreateLevel(BaseModel):
 class Level(BaseModel):
     id_levels: int
     name: str
+
+
+class User(BaseModel):
+    id_users: str
+    nombre: str
+    password: str
+
+
+class DeleteUser(BaseModel):
+    id_users: str
