@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Response, status
-from data.Models import DeleteStudent, Student
+from data.Models import DeleteStudent, Student, UpdateStudent
 from controllers import students
 
 router = APIRouter(prefix="/students", tags=["Students"])
@@ -41,7 +41,7 @@ async def create_student(student: Student, response: Response):
     response_description="A student will be updated in database",
     status_code=status.HTTP_200_OK,
 )
-async def update_student(student: Student, response: Response):
+async def update_student(student: UpdateStudent, response: Response):
     return await students.update_student(student, response)
 
 

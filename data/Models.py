@@ -12,6 +12,16 @@ class Student(BaseModel):
     status: bool
 
 
+class UpdateStudent(BaseModel):
+    id_students: str
+    first_name: str
+    last_name: str
+    phone: str
+    email: str
+    age: int
+    status: bool
+
+
 class DeleteStudent(BaseModel):
     id_students: str
 
@@ -82,7 +92,6 @@ class Inscription(BaseModel):
 
 class InscriptionDetail(BaseModel):
     id_courses: int
-    unit_price: float
 
 
 class UpdateInscription(BaseModel):
