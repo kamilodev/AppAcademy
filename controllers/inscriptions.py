@@ -25,6 +25,17 @@ async def check_status_in_inscription_by_id_student(id_students: str):
 
 
 async def check_course_in_inscription(id_inscription: int, id_course: int) -> bool:
+    """
+    The function `check_course_in_inscription` checks if a course is present in an inscription.
+
+    :param id_inscription: The id of the inscription you want to check
+    :type id_inscription: int
+    :param id_course: The `id_course` parameter is an integer that represents the ID of a course
+    :type id_course: int
+    :return: a boolean value. It returns True if there is a matching record in the "inscriptions_detail"
+    table with the given "id_inscription" and "id_course" values. It returns False if there is no
+    matching record.
+    """
     query = "SELECT id_inscriptions FROM inscriptions_detail WHERE id_inscriptions = :id_inscription AND id_courses = :id_course"
     values = {"id_inscription": id_inscription, "id_course": id_course}
     result = await database.fetch_all(query, values)
@@ -32,6 +43,15 @@ async def check_course_in_inscription(id_inscription: int, id_course: int) -> bo
 
 
 async def get_inscription_by_id(id_inscriptions: int):
+    """
+    The function `get_inscription_by_id` retrieves all rows from the `inscriptions` table where the
+    `id_inscriptions` column matches the provided `id_inscriptions` parameter.
+
+    :param id_inscriptions: The parameter `id_inscriptions` is an integer that represents the ID of the
+    inscription you want to retrieve from the database
+    :type id_inscriptions: int
+    :return: the results of a database query for inscriptions with a specific ID.
+    """
     query = f"SELECT * FROM inscriptions WHERE id_inscriptions = :id_inscriptions"
     values = {"id_inscriptions": id_inscriptions}
     results = await database.fetch_all(query, values)
@@ -39,6 +59,14 @@ async def get_inscription_by_id(id_inscriptions: int):
 
 
 async def get_active_inscriptions_by_student(id_students: str):
+    """
+    The function `get_active_inscriptions_by_student` retrieves a list of active inscriptions for a
+    given student ID.
+
+    :param id_students: The parameter `id_students` is a string that represents the ID of a student
+    :type id_students: str
+    :return: a list of active inscriptions for a given student.
+    """
     query = """
         SELECT id_inscriptions
         FROM inscriptions
@@ -64,6 +92,15 @@ async def get_active_inscriptions_by_student(id_students: str):
 
 
 async def get_active_inscriptions_by_id(id_inscriptions: int):
+    """
+    The function `get_active_inscriptions_by_id` retrieves a list of active inscriptions based on the
+    provided `id_inscriptions`.
+
+    :param id_inscriptions: The parameter "id_inscriptions" is an integer that represents the ID of the
+    inscriptions you want to retrieve
+    :type id_inscriptions: int
+    :return: a list of active inscriptions.
+    """
     query = """
     SELECT id_inscriptions
     FROM inscriptions
@@ -121,6 +158,13 @@ async def get_active_inscriptions_by_id_grouped_by_pack(
 
 
 async def get_inscription_by_student(id_students: str):
+    """
+    The function retrieves all inscriptions associated with a specific student ID.
+
+    :param id_students: The parameter `id_students` is a string that represents the ID of a student
+    :type id_students: str
+    :return: the results of a database query for inscriptions that match the given student ID.
+    """
     query = f"SELECT * FROM inscriptions WHERE id_students = :id_students"
     values = {"id_students": id_students}
     results = await database.fetch_all(query, values)
@@ -279,6 +323,24 @@ async def create_inscription(
 
 async def update_inscription(update: UpdateInscription, response: Response):
     """
+    The `update_inscription` function updates the information of an inscription in the database based on
+    the provided parameters.
+
+    :param update: The `update` parameter is an instance of the `UpdateInscription` class. It contains
+    the information needed to update an inscription in the database. The properties of the
+    `UpdateInscription` class are:
+    :type update: UpdateInscription
+    :param response: The `response` parameter is an instance of the `Response` class, which is used to
+    send the HTTP response back to the client. It allows you to set the status code and return the
+    response body
+    :type response: Response
+    :return: a response message indicating the result of the update operation. If the inscription with
+    the given ID is not found, a 404 Not Found status code is set and a message is returned indicating
+    that the inscription was not found. If the course with the given ID is not related to the
+    inscription, a 400 Bad Request status code is set and a message is returned indicating that the
+    course
+    """
+    """
     This endpoint allows you to update the information of a inscription in the database.
 
     **id**: id of the inscription (mandatory)
@@ -316,6 +378,19 @@ async def update_inscription(update: UpdateInscription, response: Response):
 
 
 async def delete_inscription(id_inscriptions: int, response: Response):
+    """
+    The `delete_inscription` function deletes an inscription by its ID and returns a success message.
+
+    :param id_inscriptions: The id of the inscription that needs to be deleted. It is of type int
+    :type id_inscriptions: int
+    :param response: The `response` parameter is an instance of the `Response` class. It is used to set
+    the HTTP status code and return the response message
+    :type response: Response
+    :return: a response object with a status code and a message. If the inscription is not found, it
+    returns a 404 status code and a message indicating that the inscription was not found. If the
+    inscription has active courses, it returns a 400 status code and a message indicating that the
+    inscription has active courses. If the deletion is successful, it returns a 200 status code and a
+    """
     """
     This endpoint allows you to delete a inscription by id.
 
