@@ -4,6 +4,15 @@ from data.Models import DeleteUser, User
 
 
 async def get_user_by_id(id_users: str):
+    """
+    The function `get_user_by_id` retrieves user information from a database based on the provided user
+    ID.
+
+    :param id_users: The parameter `id_users` is a string that represents the ID of the user you want to
+    retrieve from the database
+    :type id_users: str
+    :return: the results of a database query.
+    """
     query = f"SELECT * FROM users WHERE id_users = :id_users"
     values = {"id_users": id_users}
     results = await database.fetch_all(query, values)
@@ -24,7 +33,7 @@ async def get_user(id_users: str, response: Response):
     else:
         response.status_code = status.HTTP_200_OK
         return {"message": "User found", "data": results[0]}
-    
+
 
 async def get_all_users():
     """
@@ -48,13 +57,12 @@ async def create_user(user: User, response: Response):
         "id_users": user.id_users,
         "nombre": user.nombre,
         "password": user.password,
-
     }
     duplicate_user = await get_user_by_id(user.id_users)
     if len(duplicate_user) > 0:
         response.status_code = status.HTTP_400_BAD_REQUEST
         return f"User with id: {user.id_users} already exists"
-    
+
     await database.execute(query=query, values=values)
 
     return {"message": "User created successfully"}
