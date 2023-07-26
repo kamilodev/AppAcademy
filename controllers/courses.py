@@ -3,7 +3,7 @@ from fastapi import status, Response
 from data.Models import NewCourses
 
 
-master_query = "SELECT c.id_courses,cl.name AS classes_name,l.name AS levels_name,p.first_name AS professor_name,p.last_name AS professor_surname,c.max_students,c.prices FROM courses c JOIN classes cl ON c.id_classes=cl.id_classes JOIN levels l ON c.id_levels=l.id_levels JOIN professors p ON c.id_professors=p.id_professors"
+master_query = "SELECT c.id_courses,cl.name AS classes_name,l.name AS levels_name,p.first_name AS professor_name,p.last_name AS professor_surname,c.max_students,c.prices,cl.id_packs AS packs FROM courses c JOIN classes cl ON c.id_classes=cl.id_classes JOIN levels l ON c.id_levels=l.id_levels JOIN professors p ON c.id_professors=p.id_professors"
 
 
 async def get_courses_by_id(id_courses: int):
@@ -74,6 +74,21 @@ async def get_course_by_name(name_course: str, response: Response):
 
 
 async def get_courses_by_level(level: str, response: Response):
+    """
+    The function `get_courses_by_level` retrieves courses based on a specified level and returns the
+    results.
+
+    :param level: The `level` parameter is a string that represents the level of the course. It is used
+    to filter the courses based on their level
+    :type level: str
+    :param response: The `response` parameter is an instance of the `Response` class. It is used to set
+    the status code of the HTTP response. In this case, if the course with the specified level is not
+    found, the status code is set to 404 (Not Found)
+    :type response: Response
+    :return: a dictionary with two keys: "message" and "data". The value of the "message" key is the
+    string "All courses", and the value of the "data" key is the results of the query, which is a list
+    of courses that match the specified level.
+    """
     """
     This endpoint allows you to get a course by level.
     """

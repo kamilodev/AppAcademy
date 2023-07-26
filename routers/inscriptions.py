@@ -37,6 +37,16 @@ async def get_inscription_by_id_student(id_students: str, response: Response):
     return await inscriptions.get_inscription_by_id_student(id_students, response)
 
 
+@router.get(
+    "/payments/{id_students}",
+    summary="Get all payments by student id",
+    response_description="All payments in database shown by student id",
+    status_code=status.HTTP_200_OK,
+)
+async def get_payments_by_student(id_students: str, response: Response):
+    return await inscriptions.get_payments_by_student(id_students, response)
+
+
 @router.post(
     "/create/",
     summary="Create a new inscription",

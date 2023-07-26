@@ -12,6 +12,16 @@ class Student(BaseModel):
     status: bool
 
 
+class UpdateStudent(BaseModel):
+    id_students: str
+    first_name: str
+    last_name: str
+    phone: str
+    email: str
+    age: int
+    status: bool
+
+
 class DeleteStudent(BaseModel):
     id_students: str
 
@@ -22,6 +32,16 @@ class Professor(BaseModel):
     last_name: str
     phone: str
     email: str
+
+
+class Classes(BaseModel):
+    id_classes: int
+    name: str
+    id_packs: int
+    
+class CreateClasses(BaseModel):
+    name: str
+    id_packs: int
 
 
 
@@ -72,7 +92,6 @@ class Inscription(BaseModel):
 
 class InscriptionDetail(BaseModel):
     id_courses: int
-    unit_price: float
 
 
 class UpdateInscription(BaseModel):
@@ -80,6 +99,7 @@ class UpdateInscription(BaseModel):
     id_courses: int
     status: bool
 
+<<<<<<< HEAD
 
 class Discount(BaseModel):
     id_discounts: int
@@ -88,3 +108,5 @@ class Discount(BaseModel):
 
 class DeleteDiscount(BaseModel):
     id_discounts: int
+=======
+>>>>>>> 31ff1eea0c890dcb1c5219c5c146e07c33ece578
