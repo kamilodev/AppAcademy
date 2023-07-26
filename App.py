@@ -5,6 +5,7 @@ from routers.inscriptions import router as inscriptions
 from routers.courses import router as courses
 from routers.levels import router as levels
 from routers.users import router as users
+from routers.discounts import router as discounts
 from data.connection import database as database
 
 
@@ -15,6 +16,8 @@ app.include_router(courses)
 app.include_router(levels)
 app.include_router(users)
 app.include_router(inscriptions)
+app.include_router(discounts)
+
 
 @app.on_event("startup")
 async def startup():

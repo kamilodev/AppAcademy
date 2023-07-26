@@ -28,7 +28,7 @@ async def get_user(id_users: str, response: Response):
 
 async def get_all_users():
     """
-    This endpoint allows you to get all professors in the database.
+    This endpoint allows you to get all users in the database.
     """
     query = "SELECT * FROM users ORDER BY id_users ASC"
     results = await database.fetch_all(query)
@@ -43,6 +43,14 @@ async def create_user(user: User, response: Response):
     - **nombre**: First name of the user (mandatory)
     - **password**: Password of the user (mandatory)
     """
+
+    default_values = ["string", "", 0]
+
+    for field in user.__fields__:
+        if user.__getattribute__(field) in default_values:
+            response.status_code = status.HTTP_400_BAD_REQUEST
+            return f"Field {field} cannot be empty"
+            
     query = f"INSERT INTO users (id_users, nombre, password) VALUES (:id_users, :nombre, :password)"
     values = {
         "id_users": user.id_users,
@@ -70,6 +78,10 @@ async def update_user(user: User, response: Response):
 
     """
     results = await get_user_by_id(user.id_users)
+
+    if user.id_users == "" or user.id_users == "string":
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        return f"User id cannot be empty"
 
     if len(results) == 0:
         response.status_code = status.HTTP_404_NOT_FOUND
@@ -107,6 +119,10 @@ async def delete_user(user: DeleteUser, response: Response):
     - **id**: DNI of the user (mandatory)
     """
     results = await get_user_by_id(user.id_users)
+
+    if user.id_users == "" or user.id_users == "string":
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        return f"User id cannot be empty"
 
     if len(results) == 0:
         response.status_code = status.HTTP_404_NOT_FOUND

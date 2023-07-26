@@ -79,3 +79,12 @@ class UpdateInscription(BaseModel):
     id_inscriptions: int
     id_courses: int
     status: bool
+
+
+class Discount(BaseModel):
+    id_discounts: int
+    discounts: int
+
+
+class DeleteDiscount(BaseModel):
+    id_discounts: int

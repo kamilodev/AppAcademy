@@ -20,10 +20,10 @@ async def get_professor(id_professors: str, response: Response):
 
     if len(results) == 0:
         response.status_code = status.HTTP_404_NOT_FOUND
-        return f"Porfessor with id: {id_professors} not found"
+        return f"Professor with id: {id_professors} not found"
     else:
         response.status_code = status.HTTP_200_OK
-        return {"message": "Porfessor found", "data": results[0]}
+        return {"message": "Professor found", "data": results[0]}
     
 
 async def get_all_professors():
@@ -45,6 +45,14 @@ async def create_professor(professor: Professor, response: Response):
     - **phone**: Phone number of the professor (mandatory)
     - **email**: Email of the professor (mandatory)
     """
+
+    default_values = ["string", "", 0]
+
+    for field in professor.__fields__:
+        if professor.__getattribute__(field) in default_values:
+            response.status_code = status.HTTP_400_BAD_REQUEST
+            return f"Field {field} cannot be empty"
+        
     query = f"INSERT INTO professors (id_professors, first_name, last_name, phone, email) VALUES (:id_professors, :first_name, :last_name, :phone, :email)"
     values = {
         "id_professors": professor.id_professors,
@@ -75,6 +83,10 @@ async def update_professor(professor: Professor, response: Response):
 
     """
     results = await get_professor_by_id(professor.id_professors)
+
+    if professor.id_professors == "" or professor.id_professors == "string":
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        return f"Professor id cannot be empty"
 
     if len(results) == 0:
         response.status_code = status.HTTP_404_NOT_FOUND
@@ -112,6 +124,10 @@ async def delete_professor(professor: DeleteProfessor, response: Response):
     - **id**: DNI of the professor (mandatory)
     """
     results = await get_professor_by_id(professor.id_professors)
+
+    if professor.id_professors == "" or professor.id_professors == "string":
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        return f"Professor id cannot be empty"
 
     if len(results) == 0:
         response.status_code = status.HTTP_404_NOT_FOUND
