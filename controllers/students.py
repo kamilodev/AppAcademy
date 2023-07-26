@@ -1,6 +1,8 @@
+import json
 from data.connection import database as database
-from data.Models import DeleteStudent, Student
+from data.Models import DeleteStudent, Student, UpdateStudent
 from fastapi import status, Response, HTTPException
+from typing import List
 
 
 async def get_student_by_id(id_students: str):
@@ -10,22 +12,15 @@ async def get_student_by_id(id_students: str):
     return results
 
 
-async def get_familiar_id(student_id: str, response: Response) -> str:
-    """
-    This function checks if the provided student_id is a valid familiar ID.
-    If the student_id is valid and corresponds to an existing student, it returns the ID.
-    If the student_id is not valid or does not correspond to any existing student, it returns "0".
-    """
-    if student_id != "string" and student_id != "0" and len(student_id) > 0:
-        result = await get_student_by_id(student_id)
-        if len(result) == 0:
-            response.status_code = status.HTTP_400_BAD_REQUEST
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Familiar with id: {student_id} not found",
-            )
-        return student_id
-    return "0"
+async def change_familiar_discount(id_familiar: str):
+    from controllers import inscriptions
+
+    familiar_students = await get_student_by_id(id_familiar)
+    is_active = await inscriptions.get_active_inscriptions_by_student(id_familiar)
+
+    if len(is_active) > 0:
+        id_inscription = is_active[0]["id_inscriptions"]
+        print(id_inscription)
 
 
 async def get_student(id_students: str, response: Response):
@@ -80,9 +75,16 @@ async def create_student(student: Student, response: Response):
                 response.status_code = status.HTTP_400_BAD_REQUEST
                 return f"Field {field} cannot be empty"
 
-    student.id_familiar = await get_familiar_id(student.id_familiar, response)
+    familiar_id = student.id_familiar
+    if familiar_id != "string" and familiar_id != "0" and len(familiar_id) > 0:
+        result = await get_student_by_id(familiar_id)
+        if len(result) == 0:
+            response.status_code = status.HTTP_400_BAD_REQUEST
+            return f"Familiar with id: {familiar_id} not found"
+    else:
+        familiar_id = "0"
 
-    query = f"INSERT INTO students (id_students, first_name, last_name, phone, email, age, id_familiar, status) VALUES (:id_students, :first_name, :last_name, :phone, :email, :age, :id_familiar, :status)"
+    query = f"INSERT INTO students (id_students, first_name, last_name, phone, email, age, id_familiar, status, familiar) VALUES (:id_students, :first_name, :last_name, :phone, :email, :age, :id_familiar, :status, :familiar)"
     values = {
         "id_students": student.id_students,
         "first_name": student.first_name,
@@ -90,8 +92,9 @@ async def create_student(student: Student, response: Response):
         "phone": student.phone,
         "email": student.email,
         "age": student.age,
-        "id_familiar": student.id_familiar,
+        "id_familiar": "0",
         "status": student.status,
+        "familiar": familiar_id,
     }
 
     duplicate_student = await get_student_by_id(student.id_students)
@@ -101,10 +104,18 @@ async def create_student(student: Student, response: Response):
 
     await database.execute(query=query, values=values)
 
+    if familiar_id != "string" and familiar_id != "0" and len(familiar_id) > 0:
+        familiar_query = f"UPDATE students SET id_familiar = JSON_ARRAY_APPEND(id_familiar, '$', :new_familiar) WHERE id_students = :familiar_id"
+        familiar_values = {
+            "new_familiar": student.id_students,
+            "familiar_id": familiar_id,
+        }
+        await database.execute(query=familiar_query, values=familiar_values)
+
     return {"message": "Student created successfully"}
 
 
-async def update_student(student: Student, response: Response):
+async def update_student(student: UpdateStudent, response: Response):
     """
     This endpoint allows you to update the information of a student in the database.
 
@@ -132,7 +143,7 @@ async def update_student(student: Student, response: Response):
     existing_student = results[0]
 
     if existing_student["status"] == 1 and student.status == 0:
-        active_inscriptions = await inscriptions.get_inscription_by_student(
+        active_inscriptions = await inscriptions.get_active_inscriptions_by_student(
             student.id_students
         )
 
@@ -147,7 +158,6 @@ async def update_student(student: Student, response: Response):
         "phone": "string",
         "email": "string",
         "age": 0,
-        "id_familiar": "string",
     }
 
     for field in student.__fields__:
@@ -158,11 +168,6 @@ async def update_student(student: Student, response: Response):
                 update_fields[field] = student.__getattribute__(field)
         elif student.__getattribute__(field) != default_values[field]:
             update_fields[field] = student.__getattribute__(field)
-
-    if student.id_familiar != "string":
-        update_fields["id_familiar"] = await get_familiar_id(
-            student.id_familiar, response
-        )
 
     if len(update_fields) == 0:
         response.status_code = status.HTTP_400_BAD_REQUEST
