@@ -73,6 +73,21 @@ async def get_course_by_name(name_course: str, response: Response):
 
 async def get_courses_by_level(level: str, response: Response):
     """
+    The function `get_courses_by_level` retrieves courses based on a specified level and returns the
+    results.
+
+    :param level: The `level` parameter is a string that represents the level of the course. It is used
+    to filter the courses based on their level
+    :type level: str
+    :param response: The `response` parameter is an instance of the `Response` class. It is used to set
+    the status code of the HTTP response. In this case, if the course with the specified level is not
+    found, the status code is set to 404 (Not Found)
+    :type response: Response
+    :return: a dictionary with two keys: "message" and "data". The value of the "message" key is the
+    string "All courses", and the value of the "data" key is the results of the query, which is a list
+    of courses that match the specified level.
+    """
+    """
     This endpoint allows you to get a course by level.
     """
     query = f"{master_query} WHERE l.name = '{level}' ORDER BY c.id_courses;"

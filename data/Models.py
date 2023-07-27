@@ -99,3 +99,14 @@ class UpdateInscription(BaseModel):
     id_courses: int
     status: bool
 
+<<<<<<< HEAD
+
+class Discount(BaseModel):
+    id_discounts: int
+    discounts: int
+
+
+class DeleteDiscount(BaseModel):
+    id_discounts: int
+=======
+>>>>>>> 31ff1eea0c890dcb1c5219c5c146e07c33ece578
