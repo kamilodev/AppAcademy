@@ -147,7 +147,6 @@ async def get_inscription(id_inscription: int, response: Response):
     - **id**: id of the inscription (mandatory)
     """
     results = await get_inscription_by_id(id_inscription)
-    print(results)
 
     if len(results) == 0:
         response.status_code = status.HTTP_404_NOT_FOUND
@@ -200,17 +199,6 @@ async def create_inscription(
         response.status_code = status.HTTP_404_NOT_FOUND
         return f"Student with id: {inscription.id_students} not found"
 
-    familiar_students = students[0]["id_familiar"]
-
-    aply_discount = 0
-
-    if len(familiar_students) > 1:
-        familiar_students = json.loads(familiar_students)
-        for student in familiar_students:
-            familiar_is_active = await get_active_inscriptions_by_student(student)
-            if len(familiar_is_active) >= 1:
-                aply_discount = 0.1
-
     if students[0]["status"] == 0:
         response.status_code = status.HTTP_400_BAD_REQUEST
         return f"Student with id: {inscription.id_students} is not active"
@@ -245,6 +233,8 @@ async def create_inscription(
     if inscription.observation == "" or inscription.observation == "string":
         inscription.observation = "Sin observaciones"
 
+    aply_discount = 0
+
     values = {
         "id_students": inscription.id_students,
         "observation": inscription.observation,
@@ -267,12 +257,41 @@ async def create_inscription(
         }
         await database.execute(query, values)
 
+    familiar_students = students[0]["id_familiar"]
+    familiar = students[0]["familiar"]
+
+    if len(familiar_students) > 1:
+        familiar_students = json.loads(familiar_students)
+        for student in familiar_students:
+            familiar_is_active = await get_active_inscriptions_by_student(student)
+            if len(familiar_is_active) >= 1:
+                aply_discount = 0.1
+                query_discount = f"UPDATE inscriptions SET discount_family = :discount_family WHERE id_students = :id_students"
+
+                values = {
+                    "discount_family": aply_discount,
+                    "id_students": familiar,
+                }
+
+                await database.execute(query_discount, values)
+
+    if len(familiar_students) == 1:
+        familiar_is_active = await get_active_inscriptions_by_student(familiar)
+        if len(familiar_is_active) >= 1:
+            aply_discount = 0.1
+            query_discount = f"UPDATE inscriptions SET discount_family = :discount_family WHERE id_students = :id_students"
+
+            values = {
+                "discount_family": aply_discount,
+                "id_students": familiar,
+            }
+
+            await database.execute(query_discount, values)
+
     active_packs = await get_active_inscriptions_by_id_grouped_by_pack(
         inscription.id_students
     )
-
-    print(active_packs)
-    print(type(active_packs))
+    await set_discounts(active_packs)
     response.status_code = status.HTTP_201_CREATED
     return {"message": "Inscription created successfully"}
 
@@ -286,9 +305,15 @@ async def update_inscription(update: UpdateInscription, response: Response):
     **status**: status of the inscription (mandatory)
     """
     inscription = await get_inscription_by_id(update.id_inscriptions)
+
     if len(inscription) == 0:
         response.status_code = status.HTTP_404_NOT_FOUND
         return f"Inscription with id: {update.id_inscriptions} not found"
+
+    student = await get_student_by_id(inscription[0]["id_students"])
+    id_student = student[0][0]
+    familiar = student[0][8]
+    familiar_to_update = student[0][8]
 
     is_course_related = await check_course_in_inscription(
         update.id_inscriptions, update.id_courses
@@ -312,6 +337,45 @@ async def update_inscription(update: UpdateInscription, response: Response):
 
     await database.execute(query, values)
     response.status_code = status.HTTP_200_OK
+
+    is_active_inscription = await get_active_inscriptions_by_student(id_student)
+    get_familiar = await get_student_by_id(familiar)
+    familiar_list = json.loads(get_familiar[0][6])
+    aply_discount = 0
+
+    if len(is_active_inscription) == 0 and id_student in familiar_list:
+        familiar_list.remove(id_student)
+
+    if len(is_active_inscription) > 0 and id_student not in familiar_list:
+        familiar_list.append(id_student)
+
+    for familiar in familiar_list:
+        familiar_is_active = await get_active_inscriptions_by_student(familiar)
+
+        if len(familiar_is_active) >= 1:
+            aply_discount = 0.1
+
+    updated_familiar_list = json.dumps(familiar_list)
+
+    query = f"UPDATE students SET id_familiar = :id_familiar WHERE id_students = :id_students"
+
+    values = {
+        "id_familiar": updated_familiar_list,
+        "id_students": familiar,
+    }
+
+    await database.execute(query, values)
+
+    query_discount = f"UPDATE inscriptions SET discount_family = :discount_family WHERE id_students = :id_students"
+
+    values = {
+        "discount_family": aply_discount,
+        "id_students": familiar_to_update,
+    }
+
+    await database.execute(query_discount, values)
+    active_packs = await get_active_inscriptions_by_id_grouped_by_pack(id_student)
+    await set_discounts(active_packs)
     return {"message": "Inscription updated successfully"}
 
 
@@ -354,6 +418,7 @@ async def get_payments_by_student(id_students: str, response: Response):
     student = student["data"]
     student_name = f"{student[0][3]} {student[0][4]}"
     total = 0
+
     result_data = {"student_name": student_name, "courses": []}
 
     for result in student:
@@ -386,13 +451,47 @@ async def get_payments_by_student(id_students: str, response: Response):
             total += unit_price - (unit_price * aply_discount)
             result_data["courses"].append(course_data)
 
-    if discount_family == 0:
-        result_data["family_discount"] = "No tiene descuento familiar"
-        result_data["total_to_pay"] = total
-    elif discount_family == 0.1:
-        result_data[
-            "family_discount"
-        ] = "Se le aplicó un descuento del 10% por tener un familiar"
-        result_data["total_to_pay"] = total - (total * 0.1)
+        discount = "active" if discount_family != 0 else "inactive"
+
+        if discount == "active":
+            result_data[
+                "family_discount"
+            ] = "Se le aplicó un descuento del 10% por tener un familiar"
+            result_data["total_to_pay"] = total - (total * 0.1)
+        elif discount == "inactive":
+            result_data["family_discount"] = "No tiene descuento familiar"
+            result_data["total_to_pay"] = total
 
     return result_data
+
+
+async def set_discounts(active_courses: Dict):
+    for pack_id in active_courses:
+        if pack_id == 1 or pack_id == 2:  # Solo procesar packs 1 y 2, excluir el pack 3
+            pack = active_courses[
+                pack_id
+            ].copy()  # Crear una copia del diccionario pack
+
+            num_courses = len(pack)
+            for index, (insc_id, course_id) in enumerate(pack.items(), 1):
+                if index == 2:
+                    query = f"UPDATE inscriptions_detail SET aply_discount = 0.5 WHERE id_inscriptions = :id_inscriptions AND id_courses = :id_courses"
+                elif num_courses > 2 and index >= 3:
+                    query = f"UPDATE inscriptions_detail SET aply_discount = 0.75 WHERE id_inscriptions = :id_inscriptions AND id_courses = :id_courses"
+                else:
+                    query = f"UPDATE inscriptions_detail SET aply_discount = 0 WHERE id_inscriptions = :id_inscriptions AND id_courses = :id_courses"
+
+                values = {
+                    "id_inscriptions": insc_id,
+                    "id_courses": course_id,
+                }
+                await database.execute(query, values)
+
+        else:
+            for insc_id, course_id in active_courses[pack_id].items():
+                query = f"UPDATE inscriptions_detail SET aply_discount = 0 WHERE id_inscriptions = :id_inscriptions AND id_courses = :id_courses"
+                values = {
+                    "id_inscriptions": insc_id,
+                    "id_courses": course_id,
+                }
+                await database.execute(query, values)

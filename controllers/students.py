@@ -12,17 +12,6 @@ async def get_student_by_id(id_students: str):
     return results
 
 
-async def change_familiar_discount(id_familiar: str):
-    from controllers import inscriptions
-
-    familiar_students = await get_student_by_id(id_familiar)
-    is_active = await inscriptions.get_active_inscriptions_by_student(id_familiar)
-
-    if len(is_active) > 0:
-        id_inscription = is_active[0]["id_inscriptions"]
-        print(id_inscription)
-
-
 async def get_student(id_students: str, response: Response):
     """
     This endpoint allows you to get a student by id.
@@ -51,7 +40,6 @@ async def get_all_students(response: Response):
     return {"message": "All students", "data": results}
 
 
-# TODO: Validar si el descuento del 10% se aplica a ambos familiares, o solo al familiar que se inscribe
 async def create_student(student: Student, response: Response):
     """
     This endpoint allows you to create a new student in the database.
