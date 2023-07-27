@@ -47,6 +47,8 @@ async def get_classes(id_classes: int, response: Response):
 
 async def get_all_classes():
     """
+    This enpoint allows you to get all classes in the database.
+
     The function `get_all_classes` retrieves all classes from a database and returns them as a
     dictionary.
     :return: a dictionary with two keys: "mensaje" and "data". The value of "mensaje" is the string "All
@@ -60,6 +62,9 @@ async def get_all_classes():
 
 async def create_classes(classes: CreateClasses):
     """
+    In this endpoint it allows us to create a new class by putting
+
+    - **name**: Nombre de la clase.
     The `create_classes` function allows the creation of a new class by inserting its name and pack ID
     into the database.
 
@@ -80,6 +85,9 @@ async def create_classes(classes: CreateClasses):
 
 async def update_classes(classes: Classes, response: Response):
     """
+    This endpoint allows you to update
+    the information of a classes in the database.
+
     The function `update_classes` updates the fields of a class object in a database table called
     "classes" based on the provided input.
 
@@ -137,6 +145,9 @@ async def update_classes(classes: Classes, response: Response):
 # Que no me deje eliminar una clase que tenga relacion con curso y que me deje un mensaje de aviso.
 async def delete_classes(id_classes: int, response: Response):
     """
+    This endpoint allows you to delete
+    a classes in the database.
+
     The function `delete_classes` deletes a class from a database based on its ID and returns a response
     indicating whether the deletion was successful or not.
 

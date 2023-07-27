@@ -53,7 +53,6 @@ async def create_level(level: CreateLevel):
     return {"message": "Level created successfully"}
 
 
-# TODO: Validate if familiar exists
 async def update_level(level: Level, response: Response):
     """
     This endpoint allows you to update the information of a level in the database.

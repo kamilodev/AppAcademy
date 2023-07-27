@@ -55,7 +55,6 @@ async def get_all_courses_by_professor(name_professor: str, response: Response):
         return f"Professor with name: {name_professor} not found"
 
     results = await database.fetch_all(query)
-    print(len(results))
     return {"message": "All courses", "data": results}
 
 
@@ -69,7 +68,6 @@ async def get_course_by_name(name_course: str, response: Response):
         return f"Course with name: {name_course} not found"
 
     results = await database.fetch_all(query)
-    print(len(results))
     return {"message": "All courses", "data": results}
 
 
@@ -280,7 +278,6 @@ async def update_course(course: NewCourses, response: Response):
     return {"message": "Course updated successfully"}
 
 
-# TODO: Validar que no existan inscripciones
 async def delete_course(id_courses: int, response: Response):
     """
     This endpoint allows you to delete a course in the database.
