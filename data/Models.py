@@ -38,11 +38,11 @@ class Classes(BaseModel):
     id_classes: int
     name: str
     id_packs: int
-    
+
+
 class CreateClasses(BaseModel):
     name: str
     id_packs: int
-
 
 
 class DeleteProfessor(BaseModel):
@@ -84,7 +84,8 @@ class User(BaseModel):
 
 class DeleteUser(BaseModel):
     id_users: str
-      
+
+
 class Inscription(BaseModel):
     id_students: str
     observation: str
@@ -99,7 +100,6 @@ class UpdateInscription(BaseModel):
     id_courses: int
     status: bool
 
-<<<<<<< HEAD
 
 class Discount(BaseModel):
     id_discounts: int
@@ -108,5 +108,3 @@ class Discount(BaseModel):
 
 class DeleteDiscount(BaseModel):
     id_discounts: int
-=======
->>>>>>> 31ff1eea0c890dcb1c5219c5c146e07c33ece578
