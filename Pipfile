@@ -12,6 +12,7 @@ aiomysql = "*"
 pydantic = "*"
 router = "*"
 cryptography = "*"
+requests = "*"
 
 [dev-packages]
 

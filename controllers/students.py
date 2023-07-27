@@ -1,11 +1,19 @@
-import json
+import controllers.auxiliar_functions
 from data.connection import database as database
 from data.Models import DeleteStudent, Student, UpdateStudent
-from fastapi import status, Response, HTTPException
-from typing import List
+from fastapi import status, Response
 
 
 async def get_student_by_id(id_students: str):
+    """
+    The function `get_student_by_id` retrieves student information from a database based on their ID.
+
+    :param id_students: The parameter `id_students` is a string that represents the ID of a student. It
+    is used as a filter in the SQL query to retrieve the student with the matching ID from the
+    `students` table in the database
+    :type id_students: str
+    :return: the results of a database query.
+    """
     query = f"SELECT * FROM students WHERE id_students = :id_students"
     values = {"id_students": id_students}
     results = await database.fetch_all(query, values)
@@ -116,7 +124,6 @@ async def update_student(student: UpdateStudent, response: Response):
     - **id_familiar**: DNI of the familiar (optional)
     - **status**: Status of the student
     """
-    from controllers import inscriptions
 
     results = await get_student_by_id(student.id_students)
 
@@ -131,8 +138,10 @@ async def update_student(student: UpdateStudent, response: Response):
     existing_student = results[0]
 
     if existing_student["status"] == 1 and student.status == 0:
-        active_inscriptions = await inscriptions.get_active_inscriptions_by_student(
-            student.id_students
+        active_inscriptions = (
+            await controllers.auxiliar_functions.get_active_inscriptions_by_student(
+                student.id_students
+            )
         )
 
         if len(active_inscriptions) > 0:
@@ -176,7 +185,6 @@ async def delete_student(student: DeleteStudent, response: Response):
 
     - **id**: DNI of the student (mandatory)
     """
-    from controllers import inscriptions
 
     results = await get_student_by_id(student.id_students)
 
@@ -188,7 +196,9 @@ async def delete_student(student: DeleteStudent, response: Response):
         response.status_code = status.HTTP_404_NOT_FOUND
         return f"Student with id: {student.id_students} not found"
 
-    result = await inscriptions.get_active_inscriptions_by_student(student.id_students)
+    result = await controllers.auxiliar_functions.get_active_inscriptions_by_student(
+        student.id_students
+    )
     if len(result) > 0:
         response.status_code = status.HTTP_400_BAD_REQUEST
         return f"Student with id: {student.id_students} has active inscriptions"

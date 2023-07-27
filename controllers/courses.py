@@ -7,6 +7,14 @@ master_query = "SELECT c.id_courses,cl.name AS classes_name,l.name AS levels_nam
 
 
 async def get_courses_by_id(id_courses: int):
+    """
+    The function `get_courses_by_id` retrieves all courses from the database that match a given ID.
+
+    :param id_courses: The parameter `id_courses` is an integer that represents the ID of the courses
+    you want to retrieve from the database
+    :type id_courses: int
+    :return: the results of the query, which is a list of courses that match the given id_courses.
+    """
     query = f"SELECT * FROM courses WHERE id_courses = {id_courses}"
     results = await database.fetch_all(query)
     return results
@@ -14,9 +22,21 @@ async def get_courses_by_id(id_courses: int):
 
 async def get_courses(id_courses: int, response: Response):
     """
-    This endpoint allows you to get a courses by id.
+    The function `get_courses` retrieves a course by its ID and returns the course information if found,
+    or a 404 error message if not found.
 
-    - **id**: id of the course (mandatory)
+    :param id_courses: The `id_courses` parameter is an integer that represents the ID of the course you
+    want to retrieve. It is used to filter the query and fetch the course with the matching ID from the
+    database
+    :type id_courses: int
+    :param response: The `response` parameter is an instance of the `Response` class. It is used to set
+    the HTTP status code of the response. In this code snippet, it is being used to set the status code
+    to either `404` if the course is not found or `200` if the course
+    :type response: Response
+    :return: either a string or a dictionary. If the length of the results is 0, it returns a string
+    indicating that the course with the given id was not found. If the length of the results is not 0,
+    it returns a dictionary with a "message" key set to "Course found" and a "data" key set to the first
+    result from the database query.
     """
     query = f"{master_query} WHERE c.id_courses = {id_courses}"
     results = await get_courses_by_id(id_courses)
@@ -32,7 +52,13 @@ async def get_courses(id_courses: int, response: Response):
 
 async def get_all_courses(response: Response):
     """
-    This endpoint allows you to get all courses in the database.
+    The function retrieves all courses from the database and returns them in a response object.
+
+    :param response: The `response` parameter is an instance of the `Response` class. It is used to set
+    the status code and return the response message
+    :type response: Response
+    :return: a dictionary with a "message" key and a "data" key. The "message" key has the value "All
+    courses" and the "data" key has the value of the results obtained from the database query.
     """
     query = f"{master_query} ORDER BY c.id_courses;"
     results = await database.fetch_all(query)
@@ -45,7 +71,17 @@ async def get_all_courses(response: Response):
 
 async def get_all_courses_by_professor(name_professor: str, response: Response):
     """
-    This endpoint allows you to get all courses in the database by name professor.
+    The function retrieves all courses taught by a professor based on their name.
+
+    :param name_professor: The `name_professor` parameter is a string that represents the name of the
+    professor for whom you want to retrieve all courses
+    :type name_professor: str
+    :param response: The `response` parameter is an instance of the `Response` class. It is used to set
+    the status code of the HTTP response. In this case, if the professor with the given name is not
+    found, the status code is set to `404 Not Found`
+    :type response: Response
+    :return: either a message indicating that the professor with the given name was not found, or a
+    dictionary containing a message and the data of all courses taught by the professor.
     """
     query = (
         f"{master_query} WHERE p.first_name = '{name_professor}' ORDER BY c.id_courses;"
@@ -60,7 +96,19 @@ async def get_all_courses_by_professor(name_professor: str, response: Response):
 
 async def get_course_by_name(name_course: str, response: Response):
     """
-    This endpoint allows you to get a course by name.
+    The function `get_course_by_name` retrieves a course by its name from a database and returns the
+    course information if found, or a 404 error message if not found.
+
+    :param name_course: The parameter `name_course` is a string that represents the name of the course
+    you want to search for
+    :type name_course: str
+    :param response: The `response` parameter is an instance of the `Response` class. It is used to set
+    the status code of the HTTP response. In this case, if the course with the given name is not found,
+    the status code is set to `404 Not Found`
+    :type response: Response
+    :return: either a string or a dictionary. If the course with the given name is not found, it returns
+    a string indicating that the course was not found. If the course is found, it returns a dictionary
+    with a message and the data of the course.
     """
     query = f"{master_query} WHERE cl.name = '{name_course}' ORDER BY c.id_courses;"
     if len(await database.fetch_all(query)) == 0:
@@ -280,11 +328,19 @@ async def update_course(course: NewCourses, response: Response):
 
 async def delete_course(id_courses: int, response: Response):
     """
-    This endpoint allows you to delete a course in the database.
+    The function `delete_course` deletes a course from the database based on its ID and returns a
+    message indicating whether the deletion was successful or not.
 
-    **id_courses**: id of the course (mandatory)
+    :param id_courses: The `id_courses` parameter is an integer that represents the ID of the course
+    that needs to be deleted from the database
+    :type id_courses: int
+    :param response: The `response` parameter is an instance of the `Response` class. It is used to set
+    the HTTP status code of the response
+    :type response: Response
+    :return: a string message indicating whether the course with the given ID was successfully deleted
+    or not. If the course is found and deleted, the message will be "Course with id: {id_courses}
+    deleted". If the course is not found, the message will be "Course with id: {id_courses} not found".
     """
-
     results = await get_courses_by_id(id_courses)
 
     if len(results) == 0:

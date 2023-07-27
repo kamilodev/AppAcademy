@@ -78,8 +78,8 @@ async def create_classes(classes: CreateClasses):
         "name": classes.name,
         "id_packs": classes.id_packs,
     }
-    await database.execute(query=query, values=values)
 
+    await database.execute(query=query, values=values)
     return {"mensaje": "classes created successfully"}
 
 
@@ -137,12 +137,11 @@ async def update_classes(classes: Classes, response: Response):
     values = {"id_classes": classes.id_classes, **update_fields}
 
     query = f"UPDATE classes SET {set_query} WHERE id_classes = :id_classes"
-    await database.execute(query=query, values=values)
 
+    await database.execute(query=query, values=values)
     return f"Classes with id {classes.id_classes} update successfully"
 
 
-# Que no me deje eliminar una clase que tenga relacion con curso y que me deje un mensaje de aviso.
 async def delete_classes(id_classes: int, response: Response):
     """
     This endpoint allows you to delete

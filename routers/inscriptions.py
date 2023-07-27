@@ -3,6 +3,7 @@ from controllers import inscriptions
 from data.Models import Inscription, UpdateInscription
 from data.Models import InscriptionDetail
 from typing import List
+import controllers.bills_and_set_discounts
 
 router = APIRouter(prefix="/inscriptions", tags=["Inscriptions"])
 
@@ -44,7 +45,9 @@ async def get_inscription_by_id_student(id_students: str, response: Response):
     status_code=status.HTTP_200_OK,
 )
 async def get_payments_by_student(id_students: str, response: Response):
-    return await inscriptions.get_payments_by_student(id_students, response)
+    return await controllers.bills_and_set_discounts.get_payments_by_student(
+        id_students, response
+    )
 
 
 @router.post(
