@@ -1,6 +1,6 @@
 # Importa las librerias necesarias.
 from data.connection import database as database
-from fastapi import status, Response, status, HTTPException
+from fastapi import status, Response, status
 from data.Models import CreateClasses, Classes
 
 

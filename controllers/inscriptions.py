@@ -228,24 +228,6 @@ async def create_inscription(
 
 async def update_inscription(update: UpdateInscription, response: Response):
     """
-    The `update_inscription` function updates the information of an inscription in the database based on
-    the provided parameters.
-
-    :param update: The `update` parameter is an instance of the `UpdateInscription` class. It contains
-    the information needed to update an inscription in the database. The properties of the
-    `UpdateInscription` class are:
-    :type update: UpdateInscription
-    :param response: The `response` parameter is an instance of the `Response` class, which is used to
-    send the HTTP response back to the client. It allows you to set the status code and return the
-    response body
-    :type response: Response
-    :return: a response message indicating the result of the update operation. If the inscription with
-    the given ID is not found, a 404 Not Found status code is set and a message is returned indicating
-    that the inscription was not found. If the course with the given ID is not related to the
-    inscription, a 400 Bad Request status code is set and a message is returned indicating that the
-    course
-    """
-    """
     This endpoint allows you to update the information of a inscription in the database.
 
     **id**: id of the inscription (mandatory)
@@ -292,58 +274,47 @@ async def update_inscription(update: UpdateInscription, response: Response):
     # Get all active inscriptions for the student and familiars
     is_active_inscription = await get_active_inscriptions_by_student(id_student)
     get_familiar = await get_student_by_id(familiar)
-    familiar_list = json.loads(get_familiar[0][6])
-    aply_discount = 0
 
-    if len(is_active_inscription) == 0 and id_student in familiar_list:
-        familiar_list.remove(id_student)
+    if len(get_familiar) != 0:
+        familiar_list = json.loads(get_familiar[0]["id_familiar"])
+        aply_discount = 0
 
-    if len(is_active_inscription) > 0 and id_student not in familiar_list:
-        familiar_list.append(id_student)
+        if len(is_active_inscription) == 0 and id_student in familiar_list:
+            familiar_list.remove(id_student)
 
-    for familiar in familiar_list:
-        familiar_is_active = await get_active_inscriptions_by_student(familiar)
+        if len(is_active_inscription) > 0 and id_student not in familiar_list:
+            familiar_list.append(id_student)
 
-        if len(familiar_is_active) >= 1:
-            aply_discount = 0.1
+        for familiar in familiar_list:
+            familiar_is_active = await get_active_inscriptions_by_student(familiar)
 
-    updated_familiar_list = json.dumps(familiar_list)
-    query = f"UPDATE students SET id_familiar = :id_familiar WHERE id_students = :id_students"
+            if len(familiar_is_active) >= 1:
+                aply_discount = 0.1
 
-    values = {
-        "id_familiar": updated_familiar_list,
-        "id_students": familiar,
-    }
+        updated_familiar_list = json.dumps(familiar_list)
+        query = f"UPDATE students SET id_familiar = :id_familiar WHERE id_students = :id_students"
 
-    await database.execute(query, values)
+        values = {
+            "id_familiar": updated_familiar_list,
+            "id_students": familiar,
+        }
 
-    query_discount = f"UPDATE inscriptions SET discount_family = :discount_family WHERE id_students = :id_students"
-    values = {
-        "discount_family": aply_discount,
-        "id_students": familiar_to_update,
-    }
+        await database.execute(query, values)
 
-    # Update inscription in database, and set discounts based on active packs
-    await database.execute(query_discount, values)
-    active_packs = await get_active_inscriptions_by_id_grouped_by_pack(id_student)
-    await set_discounts(active_packs)
-    return {"message": "Inscription updated successfully"}
+        query_discount = f"UPDATE inscriptions SET discount_family = :discount_family WHERE id_students = :id_students"
+        values = {
+            "discount_family": aply_discount,
+            "id_students": familiar_to_update,
+        }
+
+        # Update inscription in database, and set discounts based on active packs
+        await database.execute(query_discount, values)
+        active_packs = await get_active_inscriptions_by_id_grouped_by_pack(id_student)
+        await set_discounts(active_packs)
+        return {"message": "Inscription updated successfully"}
 
 
 async def delete_inscription(id_inscriptions: int, response: Response):
-    """
-    The `delete_inscription` function deletes an inscription by its ID and returns a success message.
-
-    :param id_inscriptions: The id of the inscription that needs to be deleted. It is of type int
-    :type id_inscriptions: int
-    :param response: The `response` parameter is an instance of the `Response` class. It is used to set
-    the HTTP status code and return the response message
-    :type response: Response
-    :return: a response object with a status code and a message. If the inscription is not found, it
-    returns a 404 status code and a message indicating that the inscription was not found. If the
-    inscription has active courses, it returns a 400 status code and a message indicating that the
-    inscription has active courses. If the deletion is successful, it returns a 200 status code and a
-    """
     """
     This endpoint allows you to delete a inscription by id.
 

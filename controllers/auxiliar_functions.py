@@ -1,5 +1,4 @@
 from typing import Dict
-
 from data.queries import query_status
 from data.connection import database as database
 
@@ -17,10 +16,7 @@ async def check_status_in_inscription_by_id_student(id_students: str):
     values = {"id_students": id_students}
     results = await database.fetch_all(query, values)
 
-    if len(results) == 0:
-        return False
-    else:
-        return True
+    return results
 
 
 async def check_course_in_inscription(id_inscription: int, id_course: int) -> bool:
