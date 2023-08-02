@@ -26,10 +26,9 @@ async def get_inscription_by_id(id_inscriptions: int):
     :type id_inscriptions: int
     :return: the results of a database query for inscriptions with a specific ID.
     """
-    query = f"SELECT * FROM inscriptions WHERE id_inscriptions = :id_inscriptions"
+    query = "SELECT * FROM inscriptions WHERE id_inscriptions = :id_inscriptions"
     values = {"id_inscriptions": id_inscriptions}
-    results = await database.fetch_all(query, values)
-    return results
+    return await database.fetch_all(query, values)
 
 
 async def get_inscription_by_id_student(id_students: str, response: Response):
@@ -60,10 +59,9 @@ async def get_inscription_by_student(id_students: str):
     :type id_students: str
     :return: the results of a database query for inscriptions that match the given student ID.
     """
-    query = f"SELECT * FROM inscriptions WHERE id_students = :id_students"
+    query = "SELECT * FROM inscriptions WHERE id_students = :id_students"
     values = {"id_students": id_students}
-    results = await database.fetch_all(query, values)
-    return results
+    return await database.fetch_all(query, values)
 
 
 async def get_inscription(id_inscription: int, response: Response):
@@ -78,7 +76,7 @@ async def get_inscription(id_inscription: int, response: Response):
         response.status_code = status.HTTP_404_NOT_FOUND
         return f"Inscription with id: {id_inscription} not found"
     else:
-        query = master_query + f" WHERE inscriptions.id_inscriptions = {id_inscription}"
+        query = f"{master_query} WHERE inscriptions.id_inscriptions = {id_inscription}"
         results = await database.fetch_all(query)
         response.status_code = status.HTTP_200_OK
         return {"message": "Inscription found", "data": results}
@@ -93,7 +91,7 @@ async def get_all_inscriptions(response: Response):
 
     if len(results) == 0:
         response.status_code = status.HTTP_404_NOT_FOUND
-        return f"No inscriptions found"
+        return "No inscriptions found"
     return {"message": "All inscriptions", "data": results}
 
 
@@ -111,7 +109,7 @@ async def create_inscription(
     """
 
     # Validate student in different ways
-    if inscription.id_students == "string" or inscription.id_students == "":
+    if inscription.id_students in ["string", ""]:
         return "Student id is mandatory"
 
     students = await get_student_by_id(inscription.id_students)
@@ -125,14 +123,13 @@ async def create_inscription(
         return f"Student with id: {inscription.id_students} is not active"
 
     # Iterate over inscription details and create courses
+    query_check_existing = """
+        SELECT inscriptions_detail.id_courses
+        FROM inscriptions_detail
+        JOIN inscriptions ON inscriptions.id_inscriptions = inscriptions_detail.id_inscriptions
+        WHERE inscriptions.id_students = :id_students AND inscriptions_detail.id_courses = :id_courses
+    """
     for detail in inscriptions_detail:
-        query_check_existing = """
-            SELECT inscriptions_detail.id_courses
-            FROM inscriptions_detail
-            JOIN inscriptions ON inscriptions.id_inscriptions = inscriptions_detail.id_inscriptions
-            WHERE inscriptions.id_students = :id_students AND inscriptions_detail.id_courses = :id_courses
-        """
-
         existing_inscription = await database.fetch_one(
             query_check_existing,
             values={
@@ -153,9 +150,9 @@ async def create_inscription(
             response.status_code = status.HTTP_404_NOT_FOUND
             return f"Course with id: {detail.id_courses} not found"
 
-    query = f"INSERT INTO inscriptions (id_students, observation, date_inscription, discount_family) VALUES (:id_students, :observation, :date_inscription, :discount_family)"
+    query = "INSERT INTO inscriptions (id_students, observation, date_inscription, discount_family) VALUES (:id_students, :observation, :date_inscription, :discount_family)"
 
-    if inscription.observation == "" or inscription.observation == "string":
+    if inscription.observation in ["", "string"]:
         inscription.observation = "Sin observaciones"
 
     # Define values and discount for each inscription
@@ -169,7 +166,7 @@ async def create_inscription(
 
     id_inscriptions = await database.execute(query, values)
 
-    query = f"INSERT INTO inscriptions_detail (id_inscriptions, id_courses, unit_price, aply_discount, status) VALUES (:id_inscriptions, :id_courses, :unit_price, :aply_discount, :status)"
+    query = "INSERT INTO inscriptions_detail (id_inscriptions, id_courses, unit_price, aply_discount, status) VALUES (:id_inscriptions, :id_courses, :unit_price, :aply_discount, :status)"
     for detail in inscriptions_detail:
         current_course = await get_courses_by_id(detail.id_courses)
         unit_price = current_course[0]["prices"]
@@ -193,7 +190,7 @@ async def create_inscription(
             familiar_is_active = await get_active_inscriptions_by_student(student)
             if len(familiar_is_active) >= 1:
                 aply_discount = 0.1
-                query_discount = f"UPDATE inscriptions SET discount_family = :discount_family WHERE id_students = :id_students"
+                query_discount = "UPDATE inscriptions SET discount_family = :discount_family WHERE id_students = :id_students"
 
                 values = {
                     "discount_family": aply_discount,
@@ -206,7 +203,7 @@ async def create_inscription(
         familiar_is_active = await get_active_inscriptions_by_student(familiar)
         if len(familiar_is_active) >= 1:
             aply_discount = 0.1
-            query_discount = f"UPDATE inscriptions SET discount_family = :discount_family WHERE id_students = :id_students"
+            query_discount = "UPDATE inscriptions SET discount_family = :discount_family WHERE id_students = :id_students"
 
             values = {
                 "discount_family": aply_discount,
@@ -292,7 +289,7 @@ async def update_inscription(update: UpdateInscription, response: Response):
                 aply_discount = 0.1
 
         updated_familiar_list = json.dumps(familiar_list)
-        query = f"UPDATE students SET id_familiar = :id_familiar WHERE id_students = :id_students"
+        query = "UPDATE students SET id_familiar = :id_familiar WHERE id_students = :id_students"
 
         values = {
             "id_familiar": updated_familiar_list,
@@ -301,7 +298,7 @@ async def update_inscription(update: UpdateInscription, response: Response):
 
         await database.execute(query, values)
 
-        query_discount = f"UPDATE inscriptions SET discount_family = :discount_family WHERE id_students = :id_students"
+        query_discount = "UPDATE inscriptions SET discount_family = :discount_family WHERE id_students = :id_students"
         values = {
             "discount_family": aply_discount,
             "id_students": familiar_to_update,
@@ -332,11 +329,11 @@ async def delete_inscription(id_inscriptions: int, response: Response):
         response.status_code = status.HTTP_400_BAD_REQUEST
         return f"Inscription with id: {id_inscriptions} has active courses"
 
-    query = f"DELETE FROM inscriptions_detail WHERE id_inscriptions = :id_inscriptions"
+    query = "DELETE FROM inscriptions_detail WHERE id_inscriptions = :id_inscriptions"
     values = {"id_inscriptions": id_inscriptions}
     await database.execute(query, values)
 
-    query = f"DELETE FROM inscriptions WHERE id_inscriptions = :id_inscriptions"
+    query = "DELETE FROM inscriptions WHERE id_inscriptions = :id_inscriptions"
     await database.execute(query, values)
 
     response.status_code = status.HTTP_200_OK

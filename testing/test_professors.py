@@ -28,6 +28,7 @@ class TestProfessors(unittest.TestCase):
         self.assertEqual(response.status_code, 404)
         self.assertIn("not found", response.text.lower())
 
+
 if __name__ == "__main__":
     unittest.main()
 

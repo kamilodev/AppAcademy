@@ -13,6 +13,8 @@ pydantic = "*"
 router = "*"
 cryptography = "*"
 requests = "*"
+pytest = "*"
+pytest-asyncio = "*"
 
 [dev-packages]
 

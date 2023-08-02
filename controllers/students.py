@@ -14,10 +14,13 @@ async def get_student_by_id(id_students: str):
     :type id_students: str
     :return: the results of a database query.
     """
-    query = f"SELECT * FROM students WHERE id_students = :id_students"
+    query = "SELECT * FROM students WHERE id_students = :id_students"
     values = {"id_students": id_students}
-    results = await database.fetch_all(query, values)
-    return results
+    try:
+        return await database.fetch_all(query, values)
+    except Exception as e:
+        print(f"Error in get_student_by_id: {e}")
+        return []
 
 
 async def get_student(id_students: str, response: Response):
@@ -28,12 +31,11 @@ async def get_student(id_students: str, response: Response):
     """
     results = await get_student_by_id(id_students)
 
-    if len(results) == 0:
+    if not results:
         response.status_code = status.HTTP_404_NOT_FOUND
         return f"Student with id: {id_students} not found"
-    else:
-        response.status_code = status.HTTP_200_OK
-        return {"message": "Student found", "data": results[0]}
+    response.status_code = status.HTTP_200_OK
+    return {"message": "Student found", "data": results[0]}
 
 
 async def get_all_students(response: Response):
@@ -42,9 +44,9 @@ async def get_all_students(response: Response):
     """
     query = "SELECT * FROM students ORDER BY id_students ASC"
     results = await database.fetch_all(query)
-    if len(results) == 0:
+    if not results:
         response.status_code = status.HTTP_404_NOT_FOUND
-        return f"No students found"
+        return "No students found"
     return {"message": "All students", "data": results}
 
 
@@ -63,24 +65,23 @@ async def create_student(student: Student, response: Response):
     """
     default_values = ["string", "", 0]
 
-    for field in student.__fields__:
+    for field in Student.__fields__.keys():
         if student.__getattribute__(field) in default_values:
-            if field == "id_familiar" or field == "status":
+            if field in ["id_familiar", "status"]:
                 continue
-            else:
-                response.status_code = status.HTTP_400_BAD_REQUEST
-                return f"Field {field} cannot be empty"
+            response.status_code = status.HTTP_400_BAD_REQUEST
+            return f"Field {field} cannot be empty"
 
     familiar_id = student.id_familiar
-    if familiar_id != "string" and familiar_id != "0" and len(familiar_id) > 0:
+    if familiar_id not in ["string", "0"] and familiar_id:
         result = await get_student_by_id(familiar_id)
-        if len(result) == 0:
+        if not result:
             response.status_code = status.HTTP_400_BAD_REQUEST
             return f"Familiar with id: {familiar_id} not found"
     else:
         familiar_id = "0"
 
-    query = f"INSERT INTO students (id_students, first_name, last_name, phone, email, age, id_familiar, status, familiar) VALUES (:id_students, :first_name, :last_name, :phone, :email, :age, :id_familiar, :status, :familiar)"
+    query = "INSERT INTO students (id_students, first_name, last_name, phone, email, age, id_familiar, status, familiar) VALUES (:id_students, :first_name, :last_name, :phone, :email, :age, :id_familiar, :status, :familiar)"
     values = {
         "id_students": student.id_students,
         "first_name": student.first_name,
@@ -93,15 +94,14 @@ async def create_student(student: Student, response: Response):
         "familiar": familiar_id,
     }
 
-    duplicate_student = await get_student_by_id(student.id_students)
-    if len(duplicate_student) > 0:
+    if await get_student_by_id(student.id_students):
         response.status_code = status.HTTP_400_BAD_REQUEST
         return f"Student with id: {student.id_students} already exists"
 
     await database.execute(query=query, values=values)
 
-    if familiar_id != "string" and familiar_id != "0" and len(familiar_id) > 0:
-        familiar_query = f"UPDATE students SET id_familiar = JSON_ARRAY_APPEND(id_familiar, '$', :new_familiar) WHERE id_students = :familiar_id"
+    if familiar_id not in ["string", "0"] and familiar_id:
+        familiar_query = "UPDATE students SET id_familiar = JSON_ARRAY_APPEND(id_familiar, '$', :new_familiar) WHERE id_students = :familiar_id"
         familiar_values = {
             "new_familiar": student.id_students,
             "familiar_id": familiar_id,
@@ -127,11 +127,11 @@ async def update_student(student: UpdateStudent, response: Response):
 
     results = await get_student_by_id(student.id_students)
 
-    if student.id_students == "" or student.id_students == "string":
+    if student.id_students in ["", "string"]:
         response.status_code = status.HTTP_400_BAD_REQUEST
-        return f"Student id cannot be empty"
+        return "Student id cannot be empty"
 
-    if len(results) == 0:
+    if not results:
         response.status_code = status.HTTP_404_NOT_FOUND
         return f"Student with id: {student.id_students} not found"
 
@@ -144,7 +144,7 @@ async def update_student(student: UpdateStudent, response: Response):
             )
         )
 
-        if len(active_inscriptions) > 0:
+        if active_inscriptions:
             response.status_code = status.HTTP_400_BAD_REQUEST
             return f"Student with id: {student.id_students} has active inscriptions and cannot be deactivated"
 
@@ -166,7 +166,7 @@ async def update_student(student: UpdateStudent, response: Response):
         elif student.__getattribute__(field) != default_values[field]:
             update_fields[field] = student.__getattribute__(field)
 
-    if len(update_fields) == 0:
+    if not update_fields:
         response.status_code = status.HTTP_400_BAD_REQUEST
         return f"No fields to update for student with id: {student.id_students}"
 
@@ -188,22 +188,22 @@ async def delete_student(student: DeleteStudent, response: Response):
 
     results = await get_student_by_id(student.id_students)
 
-    if student.id_students == "" or student.id_students == "string":
+    if student.id_students in ["", "string"]:
         response.status_code = status.HTTP_400_BAD_REQUEST
-        return f"Student id cannot be empty"
+        return "Student id cannot be empty"
 
-    if len(results) == 0:
+    if not results:
         response.status_code = status.HTTP_404_NOT_FOUND
         return f"Student with id: {student.id_students} not found"
 
     result = await controllers.auxiliar_functions.get_active_inscriptions_by_student(
         student.id_students
     )
-    if len(result) > 0:
+    if result:
         response.status_code = status.HTTP_400_BAD_REQUEST
         return f"Student with id: {student.id_students} has active inscriptions"
 
     response.status_code = status.HTTP_200_OK
-    query = f"UPDATE students SET status = '0' WHERE id_students = :id_students"
+    query = "UPDATE students SET status = '0' WHERE id_students = :id_students"
     await database.execute(query=query, values={"id_students": student.id_students})
     return f"Student with id {student.id_students} is now inactive"
