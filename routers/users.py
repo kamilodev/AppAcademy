@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Response, status
-from data.Models import DeleteUser, User
+from data.Models import User, UserUpdate, DeleteUser
 from controllers import users
 
 router = APIRouter(prefix="/users", tags=["Users"])
@@ -41,7 +41,7 @@ async def create_user(user: User, response: Response):
     response_description="A user will be updated in database",
     status_code=status.HTTP_200_OK,
 )
-async def update_user(user: User, response: Response):
+async def update_user(user: UserUpdate, response: Response):
     return await users.update_user(user, response)
 
 

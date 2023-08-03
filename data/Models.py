@@ -77,7 +77,12 @@ class Level(BaseModel):
 
 
 class User(BaseModel):
-    id_users: str
+    nombre: str
+    password: str
+
+
+class UserUpdate(BaseModel):
+    id_users: int
     nombre: str
     password: str
 
