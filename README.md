@@ -125,7 +125,7 @@ http://127.0.0.1:8000/docs
 
 ## 📖 View documentation
 
-[Notion Docu](https://jelly-tomato-cb6.notion.site/6c11548b28a34c3f884c5e83c607600b?v=f839aa368bfa4b87ac1c59ea6f27d557&pvs=4)
+[Docu Notion](https://jelly-tomato-cb6.notion.site/6c11548b28a34c3f884c5e83c607600b?v=f839aa368bfa4b87ac1c59ea6f27d557&pvs=4)
 
 ## Authors
 
