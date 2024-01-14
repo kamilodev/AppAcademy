@@ -43,11 +43,15 @@ async def get_all_students(response: Response):
     This endpoint allows you to get all students in the database.
     """
     query = "SELECT * FROM students ORDER BY id_students ASC"
-    results = await database.fetch_all(query)
-    if not results:
-        response.status_code = status.HTTP_404_NOT_FOUND
-        return "No students found"
-    return {"message": "All students", "data": results}
+    try:
+        results = await database.fetch_all(query)
+        if not results:
+            response.status_code = status.HTTP_404_NOT_FOUND
+            return "No students found"
+        return {"message": "All students", "data": results}
+    except Exception as e:
+        if response.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR:
+            return f"Internal server error: {e}"
 
 
 async def create_student(student: Student, response: Response):
