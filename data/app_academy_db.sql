@@ -1,5 +1,5 @@
-CREATE DATABASE IF NOT EXISTS `app_academy_db`;
-USE `app_academy_db`;
+CREATE DATABASE IF NOT EXISTS `app_academy`;
+USE `app_academy`;
 
 DROP TABLE IF EXISTS `classes`;
 CREATE TABLE `classes` (

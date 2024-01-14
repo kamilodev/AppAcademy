@@ -18,9 +18,19 @@ AppAcademy is a comprehensive Management Solution for Dance Schools. Our mission
 This project focuses on a backend solution, through the implementation of a database capable of managing the registrations of new students, teachers, classes, discounts, and dance sessions. The project is loaded with some example data that you can initialize to see how it works, or skip it and enter the information you consider necessary.
 </p>
 
+<br />
+
 ## 🧠 Tech Stack
 
 ![My Skills](https://skillicons.dev/icons?i=git,github,py,vscode,bash,fastapi,mysql)
+
+<br />
+
+## 🚀 Demo 🔥
+
+[Demo](https://app-academy.vercel.app/)
+
+<br />
 
 ## ⚙️ Installation
 
@@ -103,6 +113,8 @@ http://127.0.0.1:8000/docs
 </br>
 </div>
 
+<br />
+
 ## 📌 Features
 
 <div align="justify">
@@ -121,13 +133,15 @@ http://127.0.0.1:8000/docs
 
 </div>
 
-## 🚀 Demo
+<br />
 
 ## 📖 View documentation
 
 [Docu Notion](https://jelly-tomato-cb6.notion.site/6c11548b28a34c3f884c5e83c607600b?v=f839aa368bfa4b87ac1c59ea6f27d557&pvs=4)
 
-## Authors
+<br />
+
+## 👨🏻‍💻 Authors
 
 <table>
   <tr>
@@ -151,3 +165,5 @@ http://127.0.0.1:8000/docs
 ## License
 
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
+
+![Waves](./assets/Wave_bottom.svg)
