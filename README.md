@@ -28,7 +28,7 @@ This project focuses on a backend solution, through the implementation of a data
 
 ## 🚀 Demo 🔥
 
-[Demo](https://app-academy.vercel.app/)
+[Demo](https://app-academy.onrender.com/)
 
 <br />
 
